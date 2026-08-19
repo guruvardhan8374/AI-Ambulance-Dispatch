@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ambulance_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=prod-ai-ambulance-dispatch-secure-jwt-key-2026
+      - DATABASE_URL=sqlite:///./sql_app.db
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:80,http://127.0.0.1:3000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ambulance_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
