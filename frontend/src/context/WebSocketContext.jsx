@@ -14,7 +14,21 @@ export const WebSocketProvider = ({ children }) => {
 
     const connectWS = () => {
       try {
-        ws = new WebSocket("ws://localhost:8000/ws");
+        const getWsUrl = () => {
+          if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL;
+          if (typeof window !== "undefined") {
+            const isSecure = window.location.protocol === "https:";
+            const wsProtocol = isSecure ? "wss:" : "ws:";
+            const hostname = window.location.hostname;
+            if (window.location.port === "3000") {
+              return `${wsProtocol}//${hostname}:8000/ws`;
+            }
+            return `${wsProtocol}//${window.location.host}/ws`;
+          }
+          return "ws://localhost:8000/ws";
+        };
+        ws = new WebSocket(getWsUrl());
+
 
         ws.onopen = () => {
           setIsConnected(true);
