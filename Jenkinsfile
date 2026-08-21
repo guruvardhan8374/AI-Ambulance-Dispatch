@@ -22,14 +22,17 @@ pipeline {
             }
         }
 
-        stage('Stop and Remove Old Containers') {
+        stage('Create Network') {
+            steps {
+                sh 'docker network create ambulance-network || true'
+            }
+        }
+
+        stage('Remove Old Containers') {
             steps {
                 sh '''
-                    docker stop ambulance_backend || true
-                    docker rm ambulance_backend || true
-
-                    docker stop ambulance_frontend || true
-                    docker rm ambulance_frontend || true
+                    docker rm -f ambulance_backend || true
+                    docker rm -f ambulance_frontend || true
                 '''
             }
         }
@@ -39,6 +42,8 @@ pipeline {
                 sh '''
                     docker run -d \
                     --name ambulance_backend \
+                    --network ambulance-network \
+                    --network-alias backend \
                     -p 8000:8000 \
                     ai-ambulance-dispatch-backend:latest
                 '''
@@ -50,6 +55,7 @@ pipeline {
                 sh '''
                     docker run -d \
                     --name ambulance_frontend \
+                    --network ambulance-network \
                     -p 3000:80 \
                     ai-ambulance-dispatch-frontend:latest
                 '''
