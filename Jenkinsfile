@@ -12,20 +12,25 @@ pipeline {
 
         stage('Build Backend') {
             steps {
-                sh 'docker build -t ai-ambulance-dispatch-backend ./backend'
+                sh 'docker build -t ai-ambulance-dispatch-backend:latest ./backend'
             }
         }
 
         stage('Build Frontend') {
             steps {
-                sh 'docker build -t ai-ambulance-dispatch-frontend ./frontend'
+                sh 'docker build -t ai-ambulance-dispatch-frontend:latest ./frontend'
             }
         }
 
-        stage('Stop Old Containers') {
+        stage('Stop and Remove Old Containers') {
             steps {
-                sh 'docker stop ambulance-backend ambulance-frontend || true'
-                sh 'docker rm ambulance-backend ambulance-frontend || true'
+                sh '''
+                    docker stop ambulance_backend || true
+                    docker rm ambulance_backend || true
+
+                    docker stop ambulance_frontend || true
+                    docker rm ambulance_frontend || true
+                '''
             }
         }
 
@@ -33,7 +38,7 @@ pipeline {
             steps {
                 sh '''
                     docker run -d \
-                    --name ambulance-backend \
+                    --name ambulance_backend \
                     -p 8000:8000 \
                     ai-ambulance-dispatch-backend:latest
                 '''
@@ -44,8 +49,8 @@ pipeline {
             steps {
                 sh '''
                     docker run -d \
-                    --name ambulance-frontend \
-                    -p 3000:3000 \
+                    --name ambulance_frontend \
+                    -p 3000:80 \
                     ai-ambulance-dispatch-frontend:latest
                 '''
             }
