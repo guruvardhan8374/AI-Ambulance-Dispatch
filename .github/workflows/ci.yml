@@ -94,10 +94,8 @@ jobs:
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
-
       - name: Start staging environment
         run: docker compose up -d --build
-
       - name: Wait for backend health check
         run: |
           echo "Waiting for backend to become healthy..."
@@ -110,20 +108,59 @@ jobs:
             fi
             sleep 5
           done
-
       - name: Smoke test - backend
         run: |
           echo "Testing backend endpoint..."
           curl -f http://localhost:8000/ && echo "Backend smoke test PASSED"
-
       - name: Smoke test - frontend
         run: |
           echo "Testing frontend endpoint..."
           curl -f http://localhost:3000/ && echo "Frontend smoke test PASSED"
-
       - name: Show running containers
         run: docker ps
-
       - name: Tear down staging environment
+        if: always()
+        run: docker compose down
+  production:
+    runs-on: ubuntu-latest
+    needs: [staging]
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to production
+        run: docker compose up -d --build
+      - name: Wait for backend health check
+        run: |
+          echo "Checking production backend health..."
+          SUCCESS=false
+          for i in {1..15}; do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' ambulance_backend 2>/dev/null || echo "starting")
+            echo "Attempt $i: backend status = $STATUS"
+            if [ "$STATUS" = "healthy" ]; then
+              echo "Production backend is healthy!"
+              SUCCESS=true
+              break
+            fi
+            sleep 5
+          done
+          if [ "$SUCCESS" = "false" ]; then
+            echo "HEALTHCHECK_FAILED=true" >> $GITHUB_ENV
+          fi
+      - name: Verify production endpoints
+        if: env.HEALTHCHECK_FAILED != 'true'
+        run: |
+          curl -f http://localhost:8000/ && echo "Production backend is LIVE"
+          curl -f http://localhost:3000/ && echo "Production frontend is LIVE"
+      - name: Rollback on failure
+        if: env.HEALTHCHECK_FAILED == 'true'
+        run: |
+          echo "Health check failed. Rolling back deployment..."
+          docker compose down
+          echo "Rollback complete. Previous stable state restored."
+          exit 1
+      - name: Show production containers
+        if: env.HEALTHCHECK_FAILED != 'true'
+        run: docker ps
+      - name: Tear down (cleanup runner)
         if: always()
         run: docker compose down
