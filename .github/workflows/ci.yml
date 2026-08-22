@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: Lint backend (Flake8)
+        run: |
+          cd backend
+          pip install flake8
+          flake8 .
+
+      - name: Security scan (Bandit)
+        run: |
+          cd backend
+          pip install bandit
+          bandit -r .
+
+      - name: Run backend tests (pytest)
+        run: |
+          cd backend
+          pip install pytest pytest-cov
+          pytest --cov=.
+
+      - name: Build backend Docker image
+        run: docker build -t responsai-backend ./backend
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Lint frontend (ESLint)
+        run: |
+          cd frontend
+          npm run lint
+
+      - name: Security audit (npm audit)
+        run: |
+          cd frontend
+          npm audit --audit-level=high
+
+      - name: Run frontend tests (Jest)
+        run: |
+          cd frontend
+          npm test -- --coverage
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Build frontend Docker image
+        run: docker build -t responsai-frontend ./frontend
