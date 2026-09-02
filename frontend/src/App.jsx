@@ -16,7 +16,7 @@ const MainContent = () => {
   const activeView = currentTab === "ANALYTICS" ? "ANALYTICS" : (user?.role || "DISPATCHER");
 
   return (
-    <div className="min-h-screen bg-white-950 text-slate-100 font-sans selection:bg-rose-500 selection:text-white pb-12">
+    <div className="min-h-screen bg-black-900 text-slate-100 font-sans selection:bg-rose-500 selection:text-white pb-12">
       <Navbar currentTab={currentTab} setCurrentTab={setCurrentTab} />
 
       <main className="transition-all duration-300">
