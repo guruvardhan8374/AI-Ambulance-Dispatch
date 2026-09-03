@@ -75,7 +75,7 @@ export const LiveMap = ({ emergencies = [], ambulances = [], hospitals = [], sel
   }
 
   return (
-    <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-xl" style={{ height }}>
+    <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-xl z-0 isolate" style={{ height }}>
       <MapContainer
         center={defaultCenter}
         zoom={13}

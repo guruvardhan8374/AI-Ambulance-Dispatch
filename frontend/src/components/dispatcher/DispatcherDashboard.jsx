@@ -414,7 +414,7 @@ export const DispatcherDashboard = () => {
 
       {/* Manual Override Modal */}
       {showOverrideModal && selectedEmergency && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-5">
             <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
               <div className="flex items-center space-x-2">

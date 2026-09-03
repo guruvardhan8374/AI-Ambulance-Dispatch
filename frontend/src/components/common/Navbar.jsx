@@ -64,7 +64,7 @@ export const Navbar = ({ currentTab, setCurrentTab }) => {
   };
 
   return (
-    <header className="bg-slate-900 border-b border-slate-800 text-slate-100 sticky top-0 z-50 shadow-lg">
+    <header className="bg-slate-900 border-b border-slate-800 text-slate-100 sticky top-0 z-[1100] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
@@ -156,7 +156,7 @@ export const Navbar = ({ currentTab, setCurrentTab }) => {
               </button>
 
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-[1200] overflow-hidden">
                   <div className="p-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Bell className="w-4 h-4 text-rose-400" />
@@ -206,7 +206,7 @@ export const Navbar = ({ currentTab, setCurrentTab }) => {
 
       {/* Login & Registration Modal */}
       {showAuthModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5">
             <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
               <div className="flex items-center space-x-2">
