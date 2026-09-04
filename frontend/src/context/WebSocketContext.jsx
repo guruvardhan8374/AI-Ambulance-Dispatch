@@ -5,7 +5,7 @@ const WebSocketContext = createContext(null);
 export const WebSocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [latestMessage, setLatestMessage] = useState(null);
+  const [lastMessage, setLastMessage] = useState(null);
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export const WebSocketProvider = ({ children }) => {
         ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
-            setLatestMessage(data);
+            setLastMessage(data);
 
             if (data.type && data.type !== "PONG") {
               const newNotification = {
@@ -98,7 +98,7 @@ export const WebSocketProvider = ({ children }) => {
   const clearNotifications = () => setNotifications([]);
 
   return (
-    <WebSocketContext.Provider value={{ socket, isConnected, latestMessage, notifications, clearNotifications }}>
+    <WebSocketContext.Provider value={{ socket, isConnected, lastMessage, notifications, clearNotifications }}>
       {children}
     </WebSocketContext.Provider>
   );

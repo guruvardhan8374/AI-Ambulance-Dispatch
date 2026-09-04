@@ -24,10 +24,9 @@ export const AuthProvider = ({ children }) => {
         })
         .finally(() => setLoading(false));
     } else {
-      // Default to DISPATCHER demo mode if unauthenticated for instant testing!
-      switchRole("DISPATCHER");
+      setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   const login = async (email, password) => {
     setLoading(true);

@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, timezone
 
-from app.api.deps import get_db
+from app.api.deps import get_db, require_roles
+from app.models.user import User
 from app.models.hospital import Hospital
 from app.schemas.hospital import HospitalResponse, HospitalUpdate
 from app.core.websocket_manager import ws_manager
@@ -25,7 +26,8 @@ def get_hospital(hospital_id: int, db: Session = Depends(get_db)):
 async def update_hospital_capacity(
     hospital_id: int,
     update: HospitalUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["HOSPITAL", "DISPATCHER"]))
 ):
     hosp = db.query(Hospital).filter(Hospital.id == hospital_id).first()
     if not hosp:

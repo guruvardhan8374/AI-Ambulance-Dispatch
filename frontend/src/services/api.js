@@ -63,6 +63,8 @@ export const api = {
   getRecommendedAmbulances: (emergencyId) => fetchApi(`/dispatch/recommend-ambulances/${emergencyId}`),
   getRecommendedHospitals: (emergencyId) => fetchApi(`/dispatch/recommend-hospitals/${emergencyId}`),
 
-  // Analytics
+  // Analytics & Logs
   getAnalyticsOverview: () => fetchApi("/analytics/overview"),
+  getDispatchLogs: () => fetchApi("/emergencies/system/logs"),
 };
+

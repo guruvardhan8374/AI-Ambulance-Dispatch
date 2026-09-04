@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Dict, Any, List
 
-from app.api.deps import get_db
+from app.api.deps import get_db, require_roles
+from app.models.user import User
 from app.models.emergency import Emergency
 from app.models.ambulance import Ambulance
 from app.models.hospital import Hospital
@@ -12,7 +13,10 @@ from app.schemas.analytics import AnalyticsOverview, ResponseTimeByPriority, Cat
 router = APIRouter()
 
 @router.get("/overview", response_model=AnalyticsOverview)
-def get_analytics_overview(db: Session = Depends(get_db)):
+def get_analytics_overview(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["DISPATCHER"]))
+):
     # 1. Emergency counts
     total_emergencies = db.query(Emergency).count()
     active_emergencies = db.query(Emergency).filter(Emergency.status.in_(["PENDING", "DISPATCHED", "EN_ROUTE", "ON_SCENE", "TRANSPORTING"])).count()

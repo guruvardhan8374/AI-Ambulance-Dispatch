@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
 
-from app.api.deps import get_db
+from app.api.deps import get_db, require_roles
+from app.models.user import User
 from app.models.emergency import Emergency
 from app.models.ambulance import Ambulance
 from app.models.hospital import Hospital
@@ -14,7 +15,11 @@ from app.services.ai_hospital_matcher import rank_hospitals
 router = APIRouter()
 
 @router.get("/recommend-ambulances/{emergency_id}", response_model=List[AmbulanceRecommendation])
-def get_recommended_ambulances(emergency_id: int, db: Session = Depends(get_db)):
+def get_recommended_ambulances(
+    emergency_id: int, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["DISPATCHER"]))
+):
     emergency = db.query(Emergency).filter(Emergency.id == emergency_id).first()
     if not emergency:
         raise HTTPException(status_code=404, detail="Emergency not found")
@@ -33,7 +38,11 @@ def get_recommended_ambulances(emergency_id: int, db: Session = Depends(get_db))
     return recommendations
 
 @router.get("/recommend-hospitals/{emergency_id}", response_model=List[HospitalRecommendation])
-def get_recommended_hospitals(emergency_id: int, db: Session = Depends(get_db)):
+def get_recommended_hospitals(
+    emergency_id: int, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["DISPATCHER"]))
+):
     emergency = db.query(Emergency).filter(Emergency.id == emergency_id).first()
     if not emergency:
         raise HTTPException(status_code=404, detail="Emergency not found")

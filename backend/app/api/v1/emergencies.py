@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timezone
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_db, get_current_user, require_roles
+from app.models.user import User
 from app.models.emergency import Emergency
 from app.models.ambulance import Ambulance
 from app.models.hospital import Hospital
@@ -95,7 +96,8 @@ def get_emergency_detail(emergency_id: int, db: Session = Depends(get_db)):
 async def update_emergency_status(
     emergency_id: int,
     update: EmergencyStatusUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["DRIVER", "HOSPITAL", "DISPATCHER"]))
 ):
     emergency = db.query(Emergency).filter(Emergency.id == emergency_id).first()
     if not emergency:
@@ -140,8 +142,8 @@ async def update_emergency_status(
     log = DispatchLog(
         emergency_id=emergency.id,
         action=f"STATUS_{update.status}",
-        actor_role="USER",
-        description=f"Status updated from {old_status} to {update.status}."
+        actor_role=current_user.role,
+        description=f"Status updated from {old_status} to {update.status} by {current_user.full_name} ({current_user.role})."
     )
     db.add(log)
     db.commit()
@@ -162,7 +164,8 @@ async def update_emergency_status(
 async def dispatcher_override(
     emergency_id: int,
     req: DispatchOverrideRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["DISPATCHER"]))
 ):
     emergency = db.query(Emergency).filter(Emergency.id == emergency_id).first()
     if not emergency:
@@ -202,3 +205,19 @@ async def dispatcher_override(
     })
 
     return emergency
+
+@router.get("/system/logs")
+def get_dispatch_logs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["DISPATCHER"]))
+):
+    logs = db.query(DispatchLog).order_by(DispatchLog.created_at.desc()).limit(100).all()
+    return [{
+        "id": l.id,
+        "emergency_id": l.emergency_id,
+        "action": l.action,
+        "actor_role": l.actor_role,
+        "description": l.description,
+        "created_at": l.created_at.isoformat() if l.created_at else None
+    } for l in logs]
+

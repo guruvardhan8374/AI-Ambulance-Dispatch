@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timezone
 
-from app.api.deps import get_db
+from app.api.deps import get_db, require_roles
+from app.models.user import User
 from app.models.ambulance import Ambulance
 from app.schemas.ambulance import AmbulanceResponse, AmbulanceLocationUpdate, AmbulanceStatusUpdate
 from app.core.websocket_manager import ws_manager
@@ -31,7 +32,8 @@ def get_ambulance(ambulance_id: int, db: Session = Depends(get_db)):
 async def update_ambulance_location(
     ambulance_id: int,
     location: AmbulanceLocationUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["DRIVER", "DISPATCHER"]))
 ):
     amb = db.query(Ambulance).filter(Ambulance.id == ambulance_id).first()
     if not amb:
@@ -58,7 +60,8 @@ async def update_ambulance_location(
 async def update_ambulance_status(
     ambulance_id: int,
     status_in: AmbulanceStatusUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["DRIVER", "DISPATCHER"]))
 ):
     amb = db.query(Ambulance).filter(Ambulance.id == ambulance_id).first()
     if not amb:
