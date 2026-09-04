@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShieldX, ArrowLeft, Home, Lock } from "lucide-react";
+import { ShieldX, ArrowLeft, Home, Lock, LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 export const UnauthorizedPage = ({ requiredRoles = [], userRole }) => {
@@ -65,14 +65,17 @@ export const UnauthorizedPage = ({ requiredRoles = [], userRole }) => {
             className="flex-1 inline-flex items-center justify-center space-x-2 py-3 px-4 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-600/20 transition active:scale-[0.98]"
           >
             <Home className="w-4 h-4" />
-            <span>Go to My Dashboard</span>
+            <span>Go to My Dashboard ({user?.role || userRole})</span>
           </Link>
           <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center justify-center space-x-2 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold rounded-xl border border-slate-700 transition"
+            onClick={() => {
+              logout();
+              navigate("/login", { replace: true });
+            }}
+            className="inline-flex items-center justify-center space-x-2 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold rounded-xl border border-slate-700 transition cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Go Back</span>
+            <LogOut className="w-4 h-4" />
+            <span>Switch Role / Sign Out</span>
           </button>
         </div>
       </div>

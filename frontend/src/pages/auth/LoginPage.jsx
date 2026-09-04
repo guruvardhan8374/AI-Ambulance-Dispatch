@@ -4,7 +4,7 @@ import { useAuth, DEMO_USERS } from "../../context/AuthContext";
 import { Siren, KeyRound, ShieldAlert, Truck, Hospital, Radio, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
 
 export const LoginPage = () => {
-  const { login, user } = useAuth();
+  const { login, logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,12 +28,23 @@ export const LoginPage = () => {
     }
   };
 
+  const getTargetUrl = (userRole) => {
+    const requestedPath = location.state?.from?.pathname;
+    if (requestedPath && typeof requestedPath === "string") {
+      const rolePrefix = `/${userRole.toLowerCase()}`;
+      if (requestedPath.startsWith(rolePrefix)) {
+        return requestedPath;
+      }
+    }
+    return getDashboardUrl(userRole);
+  };
+
   const handleLogin = async (loginEmail, loginPassword) => {
     setError("");
     setLoading(true);
     try {
       const loggedUser = await login(loginEmail, loginPassword);
-      const targetUrl = location.state?.from?.pathname || getDashboardUrl(loggedUser.role);
+      const targetUrl = getTargetUrl(loggedUser.role);
       navigate(targetUrl, { replace: true });
     } catch (err) {
       setError(err.message || "Failed to authenticate. Please check credentials.");
@@ -82,6 +93,36 @@ export const LoginPage = () => {
               Sign in to enter your assigned emergency dashboard
             </p>
           </div>
+
+          {user && (
+            <div className="p-3.5 bg-slate-950/80 border border-slate-800 rounded-2xl flex items-center justify-between text-xs">
+              <div className="space-y-0.5">
+                <span className="text-[10px] text-slate-400 block font-medium">Currently signed in as:</span>
+                <span className="font-bold text-white flex items-center space-x-1.5">
+                  <span className="text-rose-400">{user.email}</span>
+                  <span className="px-1.5 py-0.5 text-[9px] rounded bg-rose-500/20 text-rose-300 font-mono border border-rose-500/30">
+                    {user.role}
+                  </span>
+                </span>
+              </div>
+              <div className="flex items-center space-x-1.5">
+                <button
+                  type="button"
+                  onClick={() => navigate(getDashboardUrl(user.role), { replace: true })}
+                  className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg transition cursor-pointer text-[11px]"
+                >
+                  Dashboard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition cursor-pointer text-[11px]"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )}
 
           {error && (
             <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start space-x-2 text-rose-400 text-xs">
