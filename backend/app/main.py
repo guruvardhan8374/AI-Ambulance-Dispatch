@@ -51,7 +51,7 @@ def root():
     return {
         "status": "online",
         "system": settings.PROJECT_NAME,
-        "version": "1.1.0",
+        "version": "1.1.1",
         "docs_url": "/docs"
     }
 
@@ -60,7 +60,7 @@ def health():
     return {
         "status": "healthy",
         "system": settings.PROJECT_NAME,
-        "version": "1.1.0"
+        "version": "1.1.1"
     }
 
 if __name__ == "__main__":
