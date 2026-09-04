@@ -67,6 +67,9 @@ export const RoleHeader = ({ roleTitle, roleBadgeColor = "text-rose-400 bg-rose-
                 <span className="font-extrabold text-base tracking-tight bg-gradient-to-r from-white via-slate-200 to-rose-400 bg-clip-text text-transparent">
                   RESPONSAI
                 </span>
+                <span className="px-1.5 py-0.2 text-[9px] font-mono text-slate-400 bg-slate-800/80 border border-slate-700/60 rounded">
+                  v1.1
+                </span>
                 <span className={`px-2 py-0.5 text-[10px] font-bold border rounded-full ${roleBadgeColor}`}>
                   {roleTitle}
                 </span>

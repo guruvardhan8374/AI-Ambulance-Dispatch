@@ -51,7 +51,16 @@ def root():
     return {
         "status": "online",
         "system": settings.PROJECT_NAME,
+        "version": "1.1.0",
         "docs_url": "/docs"
+    }
+
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy",
+        "system": settings.PROJECT_NAME,
+        "version": "1.1.0"
     }
 
 if __name__ == "__main__":

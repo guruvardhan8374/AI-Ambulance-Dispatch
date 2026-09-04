@@ -29,3 +29,12 @@ npm install
 npm run dev
 ```
 Open `http://localhost:3000` in your browser.
+
+## CI/CD Pipeline (Jenkins)
+
+The project includes an automated declarative [`Jenkinsfile`](file:///c:/UBA4851-Slot%20A/data/Desktop/AI-Ambulance-Dispatch/Jenkinsfile) pipeline that executes on every commit:
+- **Checkout**: Pulls the latest code from `main`.
+- **Build Backend**: Builds container `ai-ambulance-dispatch-backend:latest`.
+- **Build Frontend**: Builds production bundle and Nginx image `ai-ambulance-dispatch-frontend:latest`.
+- **Deploy**: Orchestrates containers on `ambulance-network` on ports `8000` (FastAPI) and `3000` (React/Nginx).
+
