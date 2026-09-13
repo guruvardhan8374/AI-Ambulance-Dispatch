@@ -85,6 +85,22 @@ def get_emergencies(
         query = query.filter(Emergency.status == status_filter)
     return query.order_by(Emergency.created_at.desc()).all()
 
+@router.get("/system/logs")
+def get_dispatch_logs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["DISPATCHER"]))
+):
+    logs = db.query(DispatchLog).order_by(DispatchLog.timestamp.desc()).limit(100).all()
+    return [{
+        "id": l.id,
+        "emergency_id": l.emergency_id,
+        "action": l.action,
+        "actor_role": l.actor_role,
+        "description": l.description,
+        "timestamp": l.timestamp.isoformat() if l.timestamp else None,
+        "created_at": l.timestamp.isoformat() if l.timestamp else None
+    } for l in logs]
+
 @router.get("/{emergency_id}", response_model=EmergencyResponse)
 def get_emergency_detail(emergency_id: int, db: Session = Depends(get_db)):
     emergency = db.query(Emergency).filter(Emergency.id == emergency_id).first()
@@ -205,19 +221,4 @@ async def dispatcher_override(
     })
 
     return emergency
-
-@router.get("/system/logs")
-def get_dispatch_logs(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles(["DISPATCHER"]))
-):
-    logs = db.query(DispatchLog).order_by(DispatchLog.created_at.desc()).limit(100).all()
-    return [{
-        "id": l.id,
-        "emergency_id": l.emergency_id,
-        "action": l.action,
-        "actor_role": l.actor_role,
-        "description": l.description,
-        "created_at": l.created_at.isoformat() if l.created_at else None
-    } for l in logs]
 

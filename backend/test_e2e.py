@@ -1,8 +1,9 @@
+import os
 import requests
 import json
 import time
 
-BASE_URL = "http://localhost:8000/api/v1"
+BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000/api/v1")
 
 def run_tests():
     print("=== STARTING RESPONSAI E2E API VERIFICATION TESTS ===")
@@ -13,7 +14,7 @@ def run_tests():
         "email": reg_email,
         "password": "password123",
         "full_name": "Test Dr. Alex Rivera",
-        "role": "DRIVER",
+        "role": "DISPATCHER",
         "phone": "+1 (555) 999-8877"
     }
     r = requests.post(f"{BASE_URL}/auth/register", json=reg_payload)
@@ -43,9 +44,9 @@ def run_tests():
 
     # 4. Create Emergency SOS
     em_payload = {
-        "caller_name": "Test Patient John",
-        "caller_phone": "+1 (555) 333-2211",
-        "address": "700 Fifth Ave, New York, NY",
+        "caller_name": "Emergency Caller Unit",
+        "caller_phone": "+1 (555) 432-1098",
+        "address": "452 Lexington Ave, Midtown East, NY",
         "latitude": 40.7614,
         "longitude": -73.9776,
         "emergency_type": "Cardiac",
@@ -62,7 +63,7 @@ def run_tests():
     assert em["priority"] == "CRITICAL", f"Expected CRITICAL priority, got {em['priority']}"
 
     # 5. AI Ambulance Recommendations
-    r = requests.get(f"{BASE_URL}/dispatch/recommend-ambulances/{em_id}")
+    r = requests.get(f"{BASE_URL}/dispatch/recommend-ambulances/{em_id}", headers=headers)
     print(f"5. AI Ambulance Recommendation status: {r.status_code}")
     assert r.status_code == 200, f"Ambulance recommendation failed: {r.text}"
     amb_recs = r.json()
@@ -72,7 +73,7 @@ def run_tests():
     print(f"   Top Pick: {top_amb['ambulance']['callsign']} ({top_amb['match_score']}% Match, {top_amb['distance_km']} km away)")
 
     # 6. AI Hospital Recommendations
-    r = requests.get(f"{BASE_URL}/dispatch/recommend-hospitals/{em_id}")
+    r = requests.get(f"{BASE_URL}/dispatch/recommend-hospitals/{em_id}", headers=headers)
     print(f"6. AI Hospital Recommendation status: {r.status_code}")
     assert r.status_code == 200, f"Hospital recommendation failed: {r.text}"
     hosp_recs = r.json()
@@ -116,7 +117,7 @@ def run_tests():
     assert r.status_code == 200
 
     # 11. Analytics Overview
-    r = requests.get(f"{BASE_URL}/analytics/overview")
+    r = requests.get(f"{BASE_URL}/analytics/overview", headers=headers)
     print(f"11. Analytics Overview: {r.status_code}")
     assert r.status_code == 200
     analytics = r.json()

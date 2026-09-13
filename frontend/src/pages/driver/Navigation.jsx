@@ -77,6 +77,33 @@ export const Navigation = () => {
     }
   };
 
+  const handleSyncDeviceGPS = () => {
+    if (!currentAmbulance) return;
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const newLat = Number(position.coords.latitude.toFixed(6));
+            const newLng = Number(position.coords.longitude.toFixed(6));
+            await api.updateAmbulanceLocation(currentAmbulance.id, {
+              latitude: newLat,
+              longitude: newLng,
+            });
+          } catch (err) {
+            console.error("Failed to update ambulance device GPS:", err);
+          }
+        },
+        (error) => {
+          console.error("Device geolocation error:", error);
+          alert("Could not retrieve device GPS. Please ensure browser location permissions are granted.");
+        },
+        { enableHighAccuracy: true }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       
@@ -95,14 +122,23 @@ export const Navigation = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleSyncDeviceGPS}
+            className="inline-flex items-center space-x-2 px-4 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 text-xs font-bold rounded-xl shadow transition cursor-pointer"
+          >
+            <MapPin className="w-4 h-4 text-emerald-400" />
+            <span>Sync Real Device GPS</span>
+          </button>
+
           <button
             type="button"
             onClick={handleStepGPS}
             className="inline-flex items-center space-x-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow transition cursor-pointer"
           >
             <Play className="w-4 h-4" />
-            <span>Simulate GPS Move Forward</span>
+            <span>Simulate Move Forward</span>
           </button>
 
           <Link

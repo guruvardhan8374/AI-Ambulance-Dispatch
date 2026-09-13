@@ -4,18 +4,23 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: ambulance_backend
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
+    volumes:
+      - backend_data:/app/data
     environment:
-      - SECRET_KEY=prod-ai-ambulance-dispatch-secure-jwt-key-2026
-      - DATABASE_URL=sqlite:///./sql_app.db
-      - CORS_ORIGINS=http://localhost:3000,http://localhost:80,http://127.0.0.1:3000
+      - SECRET_KEY=${SECRET_KEY:-dev-insecure-secret-key-change-in-production-2026}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:////app/data/sql_app.db}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost,http://localhost:80,http://127.0.0.1}
+      - TOKEN_EXPIRE_MINUTES=${TOKEN_EXPIRE_MINUTES:-10080}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
+    networks:
+      - ambulance-network
 
   frontend:
     build:
@@ -23,7 +28,18 @@ services:
       dockerfile: Dockerfile
     container_name: ambulance_frontend
     ports:
-      - "3000:80"
+      - "80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
+    networks:
+      - ambulance-network
+
+networks:
+  ambulance-network:
+    driver: bridge
+
+volumes:
+  backend_data:
+    driver: local

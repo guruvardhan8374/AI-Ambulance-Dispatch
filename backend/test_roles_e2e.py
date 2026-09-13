@@ -1,8 +1,9 @@
+import os
 import requests
 import json
 import time
 
-BASE_URL = "http://localhost:8000/api/v1"
+BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000/api/v1")
 
 def login_user(email, password):
     r = requests.post(f"{BASE_URL}/auth/login", json={"email": email, "password": password})

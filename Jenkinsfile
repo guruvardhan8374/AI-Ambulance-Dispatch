@@ -22,9 +22,12 @@ pipeline {
             }
         }
 
-        stage('Create Network') {
+        stage('Create Network and Volume') {
             steps {
-                sh 'docker network create ambulance-network || true'
+                sh '''
+                    docker network create ambulance-network || true
+                    docker volume create backend_data || true
+                '''
             }
         }
 
@@ -44,7 +47,7 @@ pipeline {
                     --name ambulance_backend \
                     --network ambulance-network \
                     --network-alias backend \
-                    -p 8000:8000 \
+                    -v backend_data:/app/data \
                     ai-ambulance-dispatch-backend:latest
                 '''
             }
@@ -56,7 +59,7 @@ pipeline {
                     docker run -d \
                     --name ambulance_frontend \
                     --network ambulance-network \
-                    -p 3000:80 \
+                    -p 80:80 \
                     ai-ambulance-dispatch-frontend:latest
                 '''
             }

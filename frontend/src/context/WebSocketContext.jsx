@@ -19,10 +19,6 @@ export const WebSocketProvider = ({ children }) => {
           if (typeof window !== "undefined") {
             const isSecure = window.location.protocol === "https:";
             const wsProtocol = isSecure ? "wss:" : "ws:";
-            const hostname = window.location.hostname;
-            if (window.location.port === "3000") {
-              return `${wsProtocol}//${hostname}:8000/ws`;
-            }
             return `${wsProtocol}//${window.location.host}/ws`;
           }
           return "ws://localhost:8000/ws";

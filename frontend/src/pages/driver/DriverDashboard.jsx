@@ -142,6 +142,34 @@ export const DriverDashboard = () => {
     }
   };
 
+  // Real GPS sync via browser geolocation permission
+  const handleSyncDeviceGPS = () => {
+    if (!currentAmbulance) return;
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const newLat = Number(position.coords.latitude.toFixed(6));
+            const newLng = Number(position.coords.longitude.toFixed(6));
+            await api.updateAmbulanceLocation(currentAmbulance.id, {
+              latitude: newLat,
+              longitude: newLng,
+            });
+          } catch (err) {
+            console.error("GPS device update error:", err);
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          alert("Could not retrieve device GPS. Please ensure browser location permissions are granted.");
+        },
+        { enableHighAccuracy: true }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       
@@ -343,6 +371,26 @@ export const DriverDashboard = () => {
               <span>{getStatusButtonText(activeEmergency.status)}</span>
               <ChevronRight className="w-5 h-5" />
             </button>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={handleSyncDeviceGPS}
+                className="py-2.5 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 text-xs font-bold rounded-xl flex items-center justify-center space-x-2 transition cursor-pointer"
+              >
+                <MapPin className="w-4 h-4 text-emerald-400" />
+                <span>Sync Real Device GPS</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSimulateGPS}
+                className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold rounded-xl flex items-center justify-center space-x-2 transition cursor-pointer"
+              >
+                <Play className="w-4 h-4 text-blue-400" />
+                <span>Simulate GPS Step</span>
+              </button>
+            </div>
           </div>
 
           {/* Map Preview */}

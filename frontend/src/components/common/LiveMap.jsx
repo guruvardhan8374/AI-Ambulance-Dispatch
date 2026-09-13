@@ -45,7 +45,13 @@ function MapRecenter({ center }) {
 export const LiveMap = ({ emergencies = [], ambulances = [], hospitals = [], selectedEmergency = null, height = "450px" }) => {
   const defaultCenter = selectedEmergency 
     ? [selectedEmergency.latitude, selectedEmergency.longitude]
-    : [40.730610, -73.935242]; // Default New York coordinates
+    : emergencies.length > 0 && emergencies[0]?.latitude != null
+    ? [emergencies[0].latitude, emergencies[0].longitude]
+    : ambulances.length > 0 && ambulances[0]?.latitude != null
+    ? [ambulances[0].latitude, ambulances[0].longitude]
+    : hospitals.length > 0 && hospitals[0]?.latitude != null
+    ? [hospitals[0].latitude, hospitals[0].longitude]
+    : [20.5937, 78.9629];
 
   const getPriorityColor = (priority) => {
     switch (priority) {
